@@ -27,17 +27,9 @@ def getContact(to = "", contact = "", send = False):
 	RETURNS:
 		0 - Success.
 	"""
-	#TODO: load environment variables
-	env = _loadENV()
 
-	#TODO: login to Rock
-	session = _login(env["rockUser"], env["rockPassword"])
-
-	#TODO: go find the person
-	sms = _find(contact, session)
-
-	#TODO: send the info back
-	if send: _send(to, sms, env)
+	sms = find(contact, session)
+	if send: _testSend(to, sms, env)
 
 	return 0
 
@@ -60,11 +52,13 @@ def _login(user = "", pw = "", v = False):
 	
 	return browser
 
-def _find(name = "", session = None, v = False):
+def find(name = "", v = False):
 	"""
 	This will find the user page and return a dict of contact details.
 	"""
-	
+
+	env = _loadENV()
+	session = _login(env["rockUser"], env["rockPassword"])
 	searchURL = "https://rock.newspring.cc/Person/Search/name/?SearchTerm="
 	session.open(searchURL + name)
 	if v: print(session.find_all("title"))
@@ -110,7 +104,7 @@ def _find(name = "", session = None, v = False):
 	#TODO if list of people, figure out who they need
 	#TODO if no one comes up, reply back, can't find anyone
 
-def _send(number = "", sms = "", creds = {}):
+def _testSend(number = "", sms = "", creds = {}):
 	"""
 	Send the info back to the number.
 	"""

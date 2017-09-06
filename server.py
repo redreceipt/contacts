@@ -18,7 +18,6 @@ import contacts
 #TODO: look up Redis
 
 app = Flask(__name__)
-app.config
  
 @app.route('/sms', methods=['POST'])
 def sms():
@@ -32,7 +31,8 @@ def sms():
 	# find contact
 	#TODO: use twiml instead of REST (find() instead of getContact())
 	#TODO: make getContact third param, testSend
-	contacts.getContact(from_[1:], body, True)
+	response.message(contacts.find(body))
+	#contacts.getContact(from_[1:], body, True)
 	return str(response)
  
 if __name__ == '__main__':
