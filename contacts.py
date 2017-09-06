@@ -3,27 +3,41 @@
 #
 # This contains the main functions
 
-###import requests, lxml.html
-###from bs4 import BeautifulSoup
-from robobrowser import RoboBrowser
+# built-in libs
+import os, pdb
+from os.path import join, dirname
+
+# installed libs
+from robobrowser import RoboBrowser # pip install robobrowser
+from twilio.rest import Client # pip install twilio
+from twilio.base.exceptions import TwilioRestException
+from dotenv import load_dotenv # pip install -U python-dotenv
+
 ###from base64 import b64decode, b64encode
 import pdb
 
-def main():
+def getContact(to = "", contact = "", send = False):
 	"""
 	Will get the contact info and send back to user.
 	
+	PARAMS:
+		(str) to - phone number to send info
+		(str) contact - person to search for
+		(bool) send - flag to send text *WILL COST $$$*
 	RETURNS:
 		0 - Success.
 	"""
+	#TODO: load environment variables
+	env = _loadENV()
 
 	#TODO: login to Rock
-	session = _login()
+	session = _login(env["rockUser"], env["rockPassword"])
 
 	#TODO: go find the person
-	_find("Greg Demare", session, True)
+	sms = _find(contact, session)
 
 	#TODO: send the info back
+	if send: _send(to, sms, env)
 
 	return 0
 
@@ -37,17 +51,14 @@ def _login(user = "", pw = "", v = False):
 	# testing robobrowser
 	browser = RoboBrowser(history = True, parser = "lxml")
 	browser.open(loginPage)
-	#TODO find a better way to identify the form
 	form = browser.get_forms()[0]
-	#TODO: use dotenv to have environment variables
-	form["ctl17$ctl01$ctl00$tbUserName"].value = "michael.neeley"
-	form["ctl17$ctl01$ctl00$tbPassword"].value = "me2ee2cpe1!"
+	form["ctl17$ctl01$ctl00$tbUserName"].value = user
+	form["ctl17$ctl01$ctl00$tbPassword"].value = pw
 	submitBtn = "ctl17$ctl01$ctl00$btnLogin"
 	browser.submit_form(form, submit = form[submitBtn])
 	if v: print("Response URL: " + browser.url)
 	
 	return browser
-	#pdb.set_trace()
 
 def _find(name = "", session = None, v = False):
 	"""
@@ -55,7 +66,7 @@ def _find(name = "", session = None, v = False):
 	"""
 	
 	searchURL = "https://rock.newspring.cc/Person/Search/name/?SearchTerm="
-	session.open(searchURL + name)	
+	session.open(searchURL + name)
 	if v: print(session.find_all("title"))
 
 	#TODO if profile page pass that info back
@@ -74,11 +85,11 @@ def _find(name = "", session = None, v = False):
 	for num in numListObj.children:
 		if num.name == "li":
 			numType = num.contents[1].contents[0][0].lower()
-			numPretty = numType + " " + num.contents[0].strip()
+			numPretty = numType + ": " + num.contents[0].strip()
 			numList.append(numPretty)
 
 	# get main email address
-	email = emailListObj.contents[1].string.strip()
+	email = "e: " + emailListObj.contents[1].string.strip()
 
 	# get main home address
 	for addr in addrListObj.contents[1]:
@@ -86,7 +97,7 @@ def _find(name = "", session = None, v = False):
 			continue
 		if addr.attrs["class"][0] == "address":
 			addrStr = addr.contents[0] + ", " + addr.contents[2]
-			addrStr = addrStr.strip()
+			addrStr = "a: " + addrStr.strip()
 			break
 
 	# format and return SMS string
@@ -99,7 +110,40 @@ def _find(name = "", session = None, v = False):
 	#TODO if list of people, figure out who they need
 	#TODO if no one comes up, reply back, can't find anyone
 
-if __name__ == "__main__":
+def _send(number = "", sms = "", creds = {}):
+	"""
+	Send the info back to the number.
+	"""
+
+	#TODO: use TwiML once debug is done
+	# creds
+	account = creds["twSID"]
+	token = creds["twToken"]
+	myNumber = creds["twNum"]
+
+	client = Client(account, token)
+	client.messages.create(
+		to = number,
+		from_ = myNumber,
+		body = sms
+	)
+
+def _loadENV():
+	"""
+	Creates a dict of environment variables.
+	"""
 	
-	print(main())
+	dotenvPath = join(dirname(__file__), ".env")
+	load_dotenv(dotenvPath)
+	env = {}
+	env["twSID"] = os.environ.get("TWILIO_ACCOUNT_SID")
+	env["twToken"] = os.environ.get("TWILIO_AUTH_TOKEN")
+	env["twNum"] = os.environ.get("TWILIO_NUMBER")
+	env["rockUser"] = os.environ.get("ROCK_USER")
+	env["rockPassword"] = os.environ.get("ROCK_PASSWORD")
+	return env
+	
+if __name__ == "__main__":
+
+	getContact("8036226599", "Greg DeMare", False)
 	
