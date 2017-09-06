@@ -4,6 +4,7 @@
 
 # builtin libs
 import os
+import pdb
  
 # installed libs
 # pip install flask
@@ -25,6 +26,13 @@ def sms():
 	response = MessagingResponse()
 
 	body = request.form['Body']
+	from_ = request.form["From"]
+	#pdb.set_trace()
+	
+	# find contact
+	#TODO: use twiml instead of REST (find() instead of getContact())
+	#TODO: make getContact third param, testSend
+	contacts.getContact(from_[1:], body, True)
 	return str(response)
  
 if __name__ == '__main__':
