@@ -1,0 +1,4 @@
+flask
+robobrowser
+twilio
+python-dotenv

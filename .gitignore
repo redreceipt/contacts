@@ -3,3 +3,5 @@ venv
 .env
 ngrok
 __pycache__
+lib
+appengine_config.py
