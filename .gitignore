@@ -1,1 +1,11 @@
 venv
+*.swp
+.env
+ngrok
+__pycache__
+lib
+*.pyc
+
+# Google App Engine Files
+appengine_config.py
+app.yaml

@@ -1,0 +1,6 @@
+flask
+robobrowser
+twilio
+python-dotenv
+gunicorn
+lxml
