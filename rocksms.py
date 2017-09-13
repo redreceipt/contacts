@@ -17,7 +17,7 @@ import contacts
 #TODO: look up Redis
 
 app = Flask(__name__)
- 
+
 @app.route('/sms', methods=['POST'])
 def sms():
 	
