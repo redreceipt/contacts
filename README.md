@@ -1,4 +1,4 @@
-# Rock Contacts
+# Rock SMS
 
 *This application provides a simple SMS interface to commonly used Rock tasks.*
 
