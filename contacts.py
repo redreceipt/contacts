@@ -19,7 +19,12 @@ import pdb
 # Globals
 VERBOSE = False
 PROFILE_URL = "http://rock.newspring.cc/Person/"
-#TODO: hard code all URLs
+LOGIN_URL = "https://rock.newspring.cc"
+USER_FIELD_ID = "ctl17$ctl01$ctl00$tbUserName"
+PW_FIELD_ID = "ctl17$ctl01$ctl00$tbPassword"
+LOGIN_BTN_ID = "ctl17$ctl01$ctl00$btnLogin"
+SEARCH_URL = "https://rock.newspring.cc/Person/Search/name/?SearchTerm="
+PEOPLE_TBL_ID = "ctl00_main_ctl09_ctl01_ctl00_gPeople"
 
 def _main(query = "", to = None):
 	"""
@@ -35,15 +40,15 @@ def _login(user = "", pw = ""):
 	Will login using given credentials to Rock.
 	"""
 
-	loginPage = ("https://rock.newspring.cc")
+	loginPage = (LOGIN_URL)
 
 	# testing robobrowser
 	browser = RoboBrowser(history = True, parser = "lxml")
 	browser.open(loginPage)
 	form = browser.get_forms()[0]
-	form["ctl17$ctl01$ctl00$tbUserName"].value = user
-	form["ctl17$ctl01$ctl00$tbPassword"].value = pw
-	submitBtn = "ctl17$ctl01$ctl00$btnLogin"
+	form[USER_FIELD_ID].value = user
+	form[PW_FIELD_ID].value = pw
+	submitBtn = LOGIN_BTN_ID
 	browser.submit_form(form, submit = form[submitBtn])
 	
 	return browser
@@ -56,8 +61,6 @@ def search(query = ""):
 	# login to Rock
 	env = _loadENV()
 	session = _login(env["rockUser"], env["rockPassword"])
-	#TODO: hard code this as constant or config file
-	searchURL = "https://rock.newspring.cc/Person/Search/name/?SearchTerm="
 	
 	# get name and filters
 	args = query.split()
@@ -66,7 +69,7 @@ def search(query = ""):
 		filters.append(args.pop())
 	name = " ".join(args)
 	
-	session.open(searchURL + name)
+	session.open(SEARCH_URL + name)
 
 	# found
 	if "Person Search" not in session.find("title").string:
@@ -85,7 +88,7 @@ def search(query = ""):
 
 	# if there are multiple options, tell the user to add filters
 	reply = str(len(options)) + " options found for \"" + name + "\". "
-	reply += "Try adding some filters. Here's some examples...\n\n"
+	reply += "Try adding one or more of these filters...\n\n"
 	allOptions = []
 	for key in options.keys():
 		allOptions += options[key]
@@ -97,7 +100,7 @@ def _getOptions(session = None, name = "", filters = []):
 	This will return a list of options to choose from.
 	"""
 
-	peopleTableID = "ctl00_main_ctl09_ctl01_ctl00_gPeople"
+	peopleTableID = PEOPLE_TBL_ID
 	peopleTable = session.find_all("table", id = peopleTableID)
 	peopleRows = peopleTable[0].find_all("tr")
 	
@@ -120,14 +123,19 @@ def _getOptions(session = None, name = "", filters = []):
 	
 		# get the strings inside the td tags
 		data = list(map(
-			lambda x: str(x.string).strip(),
+			lambda x: unicode(x.string).strip().strip("()"),
 			row.find_all("td")))
 		
 		# add the strings from the small tags
 		data += list(map(
-			lambda x: str(x.string).strip(),
+			lambda x: unicode(x.string).strip().strip("()"),
 			row.find_all("small")))
-		
+	
+		# remove birthdays
+		data = list(filter(
+			lambda x: "/" not in x,
+			data))
+			
 		# remove empty cells
 		data = list(filter(
 			lambda x: x != "None" and x.strip() != "",
