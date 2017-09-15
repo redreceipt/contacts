@@ -14,8 +14,6 @@ from twilio.twiml.messaging_response import MessagingResponse
 # package libs
 import contacts
 
-#TODO: look up Redis
-
 app = Flask(__name__)
 
 # test Flask server is running
@@ -30,7 +28,11 @@ def sms():
 	body = request.form['Body']
 	response.message(contacts.search(body))
 	return str(response)
- 
+	
+	#TODO: add a usage help menu and use short codes to choose apps
+
+#TODO: add a feature that reads the staff news when you call in
+
 if __name__ == '__main__':
     app.run()
 
