@@ -19,8 +19,7 @@ app = Flask(__name__)
 # test Flask server is running
 @app.route("/")
 def hello():
-	version = os.system("git describe")
-	return ("Hello from Rock SMS Server!\nVersion: " + version)
+	return ("Hello from Rock SMS Server!")
 
 @app.route('/sms', methods=['POST'])
 def sms():
