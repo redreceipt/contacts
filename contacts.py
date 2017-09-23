@@ -19,10 +19,10 @@ import pdb
 # Globals
 VERBOSE = False
 PROFILE_URL = "http://rock.newspring.cc/Person/"
-LOGIN_URL = "https://rock.newspring.cc"
-USER_FIELD_ID = "ctl17$ctl01$ctl00$tbUserName"
-PW_FIELD_ID = "ctl17$ctl01$ctl00$tbPassword"
-LOGIN_BTN_ID = "ctl17$ctl01$ctl00$btnLogin"
+LOGIN_URL = "https://rock.newspring.cc/page/3"
+USER_FIELD_ID = "ctl11$ctl01$ctl00$tbUserName"
+PW_FIELD_ID = "ctl11$ctl01$ctl00$tbPassword"
+LOGIN_BTN_ID = "ctl11$ctl01$ctl00$btnLogin"
 SEARCH_URL = "https://rock.newspring.cc/Person/Search/name/?SearchTerm="
 PEOPLE_TBL_ID = "ctl00_main_ctl09_ctl01_ctl00_gPeople"
 
@@ -46,6 +46,8 @@ def _login(user = "", pw = ""):
 	browser = RoboBrowser(history = True, parser = "lxml")
 	browser.open(loginPage)
 	form = browser.get_forms()[0]
+	
+	#TODO: dynamically find user field ID and pw ID
 	form[USER_FIELD_ID].value = user
 	form[PW_FIELD_ID].value = pw
 	submitBtn = LOGIN_BTN_ID
