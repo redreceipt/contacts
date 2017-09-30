@@ -25,6 +25,17 @@ def hello():
 @app.route('/sms', methods=['POST'])
 def sms():
 
+	# build logger
+	logger = logging.getLogger(__name__)
+	logger.setLevel(logging.DEBUG)
+	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+	fh = logging.FileHandler("rocksms.log")
+	fh.setLevel(logging.INFO)
+	fh.setFormatter(formatter)
+	logger.addHandler(fh)
+
+	# handle incoming text
+	logger.info(str(request.form))	
 	response = MessagingResponse()
 	body = request.form['Body']
 	response.message(contacts.search(body))
