@@ -17,25 +17,14 @@ import contacts
 
 app = Flask(__name__)
 
-# define log file
-logging.basicConfig(
-	format = '%(asctime)s %(message)s',
-	level = logging.DEBUG,
-	filename = "rocksms.log"
-	)
-logging.info("\n\n")
-
 # test Flask server is running
 @app.route("/")
 def hello():
-	logging.info("Accessed page")
 	return ("Hello from Rock SMS Server!")
 
 @app.route('/sms', methods=['POST'])
 def sms():
 
-	logging.info("NEW REQUEST")
-	logging.info(str(request.form))		
 	response = MessagingResponse()
 	body = request.form['Body']
 	response.message(contacts.search(body))
