@@ -6,6 +6,7 @@ ngrok
 __pycache__
 lib
 *.pyc
+*.log
 
 # Google App Engine Files
 appengine_config.py
