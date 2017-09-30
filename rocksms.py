@@ -15,27 +15,29 @@ from twilio.twiml.messaging_response import MessagingResponse
 # package libs
 import contacts
 
+VERSION = "1.3.1"
+
 app = Flask(__name__)
 
 # test Flask server is running
 @app.route("/")
 def hello():
-	return ("Hello from Rock SMS Server!")
+	return ("Hello from Rock SMS Server v" + VERSION + "!")
 
 @app.route('/sms', methods=['POST'])
 def sms():
 
 	# build logger
-	logger = logging.getLogger(__name__)
-	logger.setLevel(logging.DEBUG)
-	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-	fh = logging.FileHandler("rocksms.log")
-	fh.setLevel(logging.INFO)
-	fh.setFormatter(formatter)
-	logger.addHandler(fh)
+	#logger = logging.getLogger(__name__)
+	#logger.setLevel(logging.DEBUG)
+	#formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+	#fh = logging.FileHandler("rocksms.log")
+	#fh.setLevel(logging.INFO)
+	#fh.setFormatter(formatter)
+	#logger.addHandler(fh)
 
 	# handle incoming text
-	logger.info(str(request.form))	
+	#logger.info(str(request.form))	
 	response = MessagingResponse()
 	body = request.form['Body']
 	response.message(contacts.search(body))
