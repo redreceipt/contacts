@@ -14,7 +14,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 # package libs
 import contacts
 
-VERSION = "1.3.1"
+VERSION = "1.4"
 
 app = Flask(__name__)
 
