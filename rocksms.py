@@ -1,6 +1,5 @@
 #! python3
 # Copyright 2017 Michael Neeley
-# This is the Rock SMS server application
 
 # builtin libs
 import os
@@ -15,7 +14,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 # package libs
 import contacts
 
-VERSION = "1.3.1"
+VERSION = "1.4"
 
 app = Flask(__name__)
 
@@ -27,20 +26,42 @@ def hello():
 @app.route('/sms', methods=['POST'])
 def sms():
 
-	# build logger
-	#logger = logging.getLogger(__name__)
-	#logger.setLevel(logging.DEBUG)
-	#formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-	#fh = logging.FileHandler("rocksms.log")
-	#fh.setLevel(logging.INFO)
-	#fh.setFormatter(formatter)
-	#logger.addHandler(fh)
+	#TODO: move this to external class
+	# build loggers
+	logger = logging.getLogger(__name__)
+	logger.setLevel(logging.DEBUG)
+	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-	# handle incoming text
-	#logger.info(str(request.form))	
-	response = MessagingResponse()
+	# add log file handlers
+	fh = logging.FileHandler("rocksms.log")
+	fh.setLevel(logging.INFO)
+	fh.setFormatter(formatter)
+	logger.addHandler(fh)
+
+	# add console handlers
+	sh = logging.StreamHandler()
+	sh.setLevel(logging.DEBUG)
+	sh.setFormatter(formatter)
+	logger.addHandler(sh)
+
+	# add email handlers
+
+	# handle request
+	logger.info(request.form)	
 	body = request.form['Body']
-	response.message(contacts.search(body))
+	
+	# handle response
+	response = MessagingResponse()
+
+	# if response is not good, show details
+	#if str(response) != "200 OK":
+	#	logger.error(str(response))
+	#	response.message("Error occurred. The team has been notified!")
+	#	return str(response)
+
+	reply = contacts.search(body)
+	logger.info(reply)	
+	response.message(reply)
 	return str(response)
 	
 	#TODO: add a usage help menu and use short codes to choose apps
@@ -48,5 +69,6 @@ def sms():
 #TODO: add a feature that reads the staff news when you call in
 
 if __name__ == '__main__':
-    app.run()
+	app.debug = True
+	app.run()
 

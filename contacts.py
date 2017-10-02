@@ -186,12 +186,15 @@ def _getInfo(session = None, personKey = None):
 			numList.append(numPretty)
 
 	# get main email address
-	email = "e: " + emailListObj.contents[1].string.strip()
-
+	emailList = []
+	for string in emailListObj.contents[1].strings:
+		emailList.append("e: " + string.strip())
+	
 	# get main home address
 	# TODO: use find_all instead of iterating through
 	for addr in addrListObj.contents[1]:
 		if addr.string != None:
+			addrStr = ""
 			continue
 		if addr.attrs["class"][0] == "address":
 			addrStr = addr.contents[0] + ", " + addr.contents[2]
@@ -201,8 +204,10 @@ def _getInfo(session = None, personKey = None):
 	# format and return SMS string
 	sms = name + "\n"
 	for num in numList:
-		sms = sms + num + "\n"
-	sms = sms + email + "\n" + addrStr
+		sms += num + "\n"
+	for email in emailList:
+		sms += email + "\n"
+	sms += addrStr
 	return sms	
 
 
