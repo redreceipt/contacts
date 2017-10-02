@@ -26,41 +26,22 @@ def hello():
 @app.route('/sms', methods=['POST'])
 def sms():
 
-	#TODO: move this to external class
-	# build loggers
-	logger = logging.getLogger(__name__)
-	logger.setLevel(logging.DEBUG)
-	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-	# add log file handlers
-	fh = logging.FileHandler("rocksms.log")
-	fh.setLevel(logging.INFO)
-	fh.setFormatter(formatter)
-	logger.addHandler(fh)
-
-	# add console handlers
-	sh = logging.StreamHandler()
-	sh.setLevel(logging.DEBUG)
-	sh.setFormatter(formatter)
-	logger.addHandler(sh)
-
-	# add email handlers
-
 	# handle request
-	logger.info(request.form)	
+	app.logger.info(request.form)	
 	body = request.form['Body']
 	
 	# handle response
 	response = MessagingResponse()
 
+	#TODO: send error message
 	# if response is not good, show details
 	#if str(response) != "200 OK":
-	#	logger.error(str(response))
+	#	app.logger.error(str(response))
 	#	response.message("Error occurred. The team has been notified!")
 	#	return str(response)
 
 	reply = contacts.search(body)
-	logger.info(reply)	
+	app.logger.info(reply)	
 	response.message(reply)
 	return str(response)
 	
@@ -69,6 +50,17 @@ def sms():
 #TODO: add a feature that reads the staff news when you call in
 
 if __name__ == '__main__':
-	app.debug = True
+
+	#TODO: move this to external class
+	# add log file handlers
+	fh = logging.RotatingFileHandler("rocksms.log", maxBytes = 10000, backupCount = 1)
+	fh.setLevel(logging.INFO)
+	formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+	fh.setFormatter(formatter)
+	app.logger.addHandler(fh)
+
+	# add email handlers
+	#TODO: add email for ERROR messages
+
 	app.run()
 
